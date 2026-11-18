@@ -1,0 +1,4 @@
+/* What a consuming app's stylesheet gives a page, for the stories: Tailwind and the package's one entry, exactly as
+   docs/CONSUMING.md tells an app to import it. */
+@import 'tailwindcss';
+@import '../src/lib/styles/index.css';

@@ -1,0 +1,26 @@
+{
+	"compilerOptions": {
+		"target": "ES2022",
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"strict": true,
+		"noUncheckedIndexedAccess": true,
+		"noEmit": true,
+		"skipLibCheck": true,
+		"isolatedModules": true,
+		"resolveJsonModule": true,
+		"esModuleInterop": true,
+		"verbatimModuleSyntax": true,
+		"checkJs": true,
+		"allowJs": true,
+		"types": ["svelte", "node"]
+	},
+	"include": [
+		"src/**/*.ts",
+		"src/**/*.svelte",
+		"tests/**/*.ts",
+		"vite/**/*.js",
+		"vite/**/*.d.ts",
+		".storybook/**/*.ts"
+	]
+}

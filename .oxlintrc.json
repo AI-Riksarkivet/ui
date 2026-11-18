@@ -1,0 +1,67 @@
+{
+	"$schema": "./node_modules/oxlint/configuration_schema.json",
+	"plugins": ["typescript"],
+	"jsPlugins": ["@rsvelte/oxlint-plugin"],
+	"extends": ["./node_modules/@rsvelte/oxlint-plugin/recommended.json"],
+	"categories": {
+		"correctness": "error"
+	},
+	"rules": {
+		"typescript/no-explicit-any": "warn",
+		"no-unused-vars": [
+			"error",
+			{
+				"argsIgnorePattern": "^_",
+				"varsIgnorePattern": "^_",
+				"caughtErrorsIgnorePattern": "^_"
+			}
+		],
+
+		// Keyless {#each} silently re-renders or reorders DOM on mutation; reassigning reactive state
+		// imperatively is the "assigned but not reactive" trap. Errors, so a gate fails.
+		"svelte/require-each-key": "error",
+		"svelte/no-reactive-reassign": "error",
+
+		// OFF, each with its reason. rsvelte's recommended set is written for a components-own-their-CSS
+		// codebase, and a few of its rules are wrong for a utility-CSS design system.
+
+		// Reports every Tailwind utility: it looks for a matching selector in the component's own
+		// <style> block, and a utility class has none by design.
+		"svelte/no-unused-class-name": "off",
+		// Advises "select by ID instead of class": the opposite of a utility-CSS convention.
+		"svelte/consistent-selector-style": "off",
+		// A library has no routes: it renders the hrefs its caller made.
+		"svelte/no-navigation-without-base": "off",
+		"svelte/no-goto-without-base": "off",
+		"svelte/no-navigation-without-resolve": "off",
+		// Every hit is a runtime-computed geometry value (a progress width, a split fraction, a digit's
+		// offset). A utility class cannot express a number known only at runtime.
+		"svelte/no-inline-styles": "off",
+		"svelte/require-optimized-style-attribute": "off",
+		// Prefers `{const …}`, newer than the `{@const …}` the pinned Svelte compiles.
+		"svelte/no-at-const-tags": "off",
+		// Wants the <script> lang attribute omitted; every component here is lang="ts".
+		"svelte/block-lang": "off",
+		"svelte/prefer-svelte-reactivity": "off"
+	},
+	"overrides": [
+		{
+			"files": ["**/*.svelte", "**/*.svelte.ts", "**/*.svelte.js"],
+			"rules": {
+				// oxlint's .svelte support reads the <script> block and not the markup, so a variable
+				// assigned only by `bind:this={el}` looks unassigned.
+				"no-unassigned-vars": "off",
+				// `$effect(() => …)` is an expression statement: expected Svelte 5 usage.
+				"no-unused-expressions": "off"
+			}
+		},
+		{
+			"files": ["**/tests/**", "**/*.test.ts", "**/*.spec.ts"],
+			"rules": {
+				// A test that asserts how a helper handles a constant argument must write that constant.
+				"no-constant-binary-expression": "off"
+			}
+		}
+	],
+	"ignorePatterns": ["**/.svelte-check/**", "**/storybook-static/**", "**/node_modules/**"]
+}

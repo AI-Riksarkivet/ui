@@ -1,0 +1,13 @@
+/* The one stylesheet a consumer imports, after Tailwind:
+
+     @import 'tailwindcss';
+     @import '@riksarkivet/ui/styles.css';
+
+   It brings the fonts (self-hosted IBM Plex, the one weight, 400), the enter/exit animation utilities the overlay
+   components use (tw-animate-css), the themes' seeds and the tokens, and a scan of this package's own sources so the
+   classes its components use are generated: Tailwind 4 skips `node_modules`, and an `@source` path is read relative to
+   the stylesheet that declares it, so this one works wherever the package is installed. */
+@import 'tw-animate-css';
+@import './tokens.css';
+
+@source '../../';

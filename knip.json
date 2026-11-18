@@ -1,0 +1,14 @@
+{
+	"$schema": "https://unpkg.com/knip@6/schema.json",
+	"ignoreExportsUsedInFile": {
+		"type": true,
+		"interface": true
+	},
+	"entry": [
+		"src/lib/**/index.{ts,js}",
+		"src/lib/hooks/color-mode.svelte.ts",
+		"src/lib/motion.ts",
+		"vite/index.js"
+	],
+	"project": ["src/**/*.{ts,js,svelte}", "vite/**/*.js"]
+}

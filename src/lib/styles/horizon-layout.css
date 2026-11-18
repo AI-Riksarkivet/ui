@@ -1,0 +1,75 @@
+/*
+ * A theme for horizon-layout 2.x docks: its `--hl-*` properties mapped onto the tokens. Optional; this package does not
+ * depend on horizon-layout. A consumer that docks with it imports the library's structural sheet and then this one,
+ * both under `layer(base)` so the Tailwind utilities a panel's content is styled with win over them:
+ *
+ *   @import 'horizon-layout/horizon-layout.css' layer(base);
+ *   @import '@riksarkivet/ui/styles/horizon-layout.css' layer(base);
+ *
+ * Import them from the app's main stylesheet rather than from a route, so a popout window, which copies the page's
+ * stylesheets when it opens, finds them already loaded.
+ *
+ * Only the palette is replaced; the library's own sheet supplies the structure every BEM class needs (the split panes,
+ * the resizer handle, the drop zones and hints, a floating group, the popout frame). Every value resolves through a
+ * token, which the person's theme, mode and accent set on <html>, so the dock follows them with no class of its own;
+ * the library's `.light` variant is never set and stays inert.
+ *
+ * Set on the layout's root and on a popout's root (`horizon-layout__popout`, which sits outside the layout in its own
+ * window): the library copies the page's stylesheets into that window and mirrors <html>'s class, `data-theme` and
+ * inline custom properties (a custom accent) onto it, so a docked, maximized, floating or popped-out view reads the
+ * same values.
+ */
+.horizon-layout,
+.horizon-layout__popout {
+	--hl-background: var(--background);
+	--hl-foreground: var(--foreground);
+	--hl-primary: var(--primary);
+	--hl-popover: var(--popover);
+	--hl-border: var(--border);
+	--hl-card: var(--card);
+	/* The active tab is the panel's own surface, so it reads as attached to the content below. */
+	--hl-secondary: var(--card);
+	--hl-muted-foreground: var(--muted-foreground);
+	--hl-ring: var(--ring);
+	--hl-accent: var(--accent);
+	--hl-radius: 0px;
+	--hl-glass-blur: 0px;
+	--hl-tab-inactive-color: var(--muted-foreground);
+	--hl-drop-hint-border: var(--ring);
+	--hl-drop-hint-bg: color-mix(in oklch, var(--primary) 16%, transparent);
+	/* A floating group is elevated like every other thing that floats. */
+	--hl-floating-shadow: var(--shadow-elevated);
+
+	font-family: inherit;
+	font-size: 0.8125rem;
+}
+
+/* A 36px tab strip. */
+.horizon-layout-tabgroup__tab-bar {
+	min-height: 2.25rem;
+}
+
+.horizon-layout-tabgroup__tab {
+	min-height: 1.75rem;
+	margin-block: 0.25rem;
+	border-radius: 0;
+}
+
+/* The resizer is invisible at rest and shows the ring colour while hovered, dragged or focused. */
+.horizon-layout-split__resizer-handle:hover::before {
+	opacity: 1;
+}
+
+/* The design's tab: a small uppercase label (CSS only; the tab's name is its title as written), square, and the active
+   one marked by a line of the accent along its top edge. */
+.horizon-layout-tabgroup__tab-title {
+	font-size: 0.6875rem;
+	text-transform: uppercase;
+	letter-spacing: 0.07em;
+}
+
+.horizon-layout-tabgroup__tab--active {
+	box-shadow: inset 0 2px 0 0 var(--primary);
+	/* One weight: the library's 500 would be synthesised from the one face loaded. */
+	font-weight: 400;
+}
