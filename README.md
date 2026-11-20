@@ -21,4 +21,4 @@ make check       # format, lint, svelte-check, knip, tests
 make storybook   # http://localhost:6006, every story in every theme and mode from the toolbar
 ```
 
-No licence has been chosen for this repository's own code yet; third-party code keeps its own, see THIRD_PARTY.md.
+Licensed under the Apache License 2.0 ([`LICENSE`](LICENSE)). Third-party code keeps its own licence and notice, see THIRD_PARTY.md.
