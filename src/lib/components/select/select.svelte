@@ -36,15 +36,20 @@
 	} = $props();
 
 	const label = $derived(options.find((o) => o.value === value)?.label ?? placeholder);
+
+	// The trigger is named by its label AND the value it shows ('Sort by Created'): a name that left the value on screen
+	// out would hide the choice from a screen reader and fail WCAG 2.5.3 for a voice user who says what they see.
+	const uid = $props.id();
 </script>
 
 <Select.Root type="single" bind:value items={options} {disabled} {onValueChange}>
 	<Select.Trigger
-		aria-label={ariaLabel}
+		aria-labelledby={ariaLabel ? `${uid}-label ${uid}-value` : undefined}
 		data-slot="select-trigger"
 		class="bg-input border-field-line hover:bg-accent/60 focus-visible:border-primary data-[state=open]:border-primary inline-flex h-8 min-w-30 items-center justify-between gap-2 rounded-none border-0 border-b px-2.5 text-sm transition-[background-color,border-color,box-shadow] duration-(--duration-fast) focus-visible:shadow-[inset_0_-1px_0_0_var(--primary)] focus-visible:outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[state=open]:shadow-[inset_0_-1px_0_0_var(--primary)]"
 	>
-		<span class={value ? '' : 'text-muted-foreground'}>{label}</span>
+		{#if ariaLabel}<span id="{uid}-label" class="sr-only">{ariaLabel}</span>{/if}
+		<span id="{uid}-value" class={value ? '' : 'text-muted-foreground'}>{label}</span>
 		<ChevronDown size={13} class="opacity-60" />
 	</Select.Trigger>
 	<Select.Portal>
@@ -59,6 +64,7 @@
 						value={o.value}
 						label={o.label}
 						disabled={o.disabled}
+						aria-disabled={o.disabled ? 'true' : undefined}
 						class="data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground data-[selected]:text-foreground flex cursor-default items-center justify-between gap-2 rounded-none px-2 py-1.5 text-sm select-none data-[disabled]:opacity-40"
 					>
 						{#snippet children({ selected }: { selected: boolean })}

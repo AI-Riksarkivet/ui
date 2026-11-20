@@ -3,7 +3,9 @@ import {
 	formatAbsolute,
 	formatRelative,
 	formatTimestamp,
+	formatZoned,
 	toDate,
+	utcOffsetLabel,
 } from '../src/lib/utils/timestamp.js';
 
 // The one clock formatter. A time-series store can hand over raw NANOSECOND epoch integers, which
@@ -97,5 +99,26 @@ describe('formatTimestamp', () => {
 		expect(t.relative).toBe('5m ago');
 		expect(t.absolute).toBe(formatAbsolute(NANOS));
 		expect(t.title).toBe(t.absolute);
+	});
+});
+
+describe('utcOffsetLabel', () => {
+	it.each([
+		[0, 'UTC'],
+		[60, 'UTC+01:00'],
+		[-330, 'UTC-05:30'],
+	])('names %i minutes east of Greenwich as %s', (minutes, label) => {
+		expect(utcOffsetLabel(minutes)).toBe(label);
+	});
+});
+
+describe('formatZoned', () => {
+	it('prints the local stamp followed by the zone it is read in', () => {
+		const zone = utcOffsetLabel(-new Date(MS).getTimezoneOffset());
+		expect(formatZoned(NANOS)).toBe(`${formatAbsolute(NANOS)} ${zone}`);
+	});
+
+	it('renders an em dash when there is nothing to show', () => {
+		expect(formatZoned(null)).toBe('—');
 	});
 });

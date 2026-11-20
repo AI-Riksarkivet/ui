@@ -16,10 +16,10 @@
 	];
 </script>
 
-<Story name="Collapsible to icons">
+{#snippet frame(mobileTitle?: string)}
 	<div class="h-[28rem]">
 		<Sidebar.Provider class="min-h-0 h-full">
-			<Sidebar.Root collapsible="icon" class="absolute h-full">
+			<Sidebar.Root collapsible="icon" class="absolute h-full" {mobileTitle}>
 				<Sidebar.Content>
 					<Sidebar.Group>
 						<Sidebar.GroupLabel>Pages</Sidebar.GroupLabel>
@@ -48,4 +48,14 @@
 			</Sidebar.Inset>
 		</Sidebar.Provider>
 	</div>
+{/snippet}
+
+<Story name="Collapsible to icons">
+	{@render frame()}
+</Story>
+
+<!-- Below the width the sidebar folds at, it is a sheet behind the trigger: a title row with its own close
+     button, no tooltip on its rows (Escape on a row closes the sheet), and the title the app gives it. -->
+<Story name="At phone width" globals={{ viewport: { value: 'mobile1', isRotated: false } }}>
+	{@render frame('Pages')}
 </Story>

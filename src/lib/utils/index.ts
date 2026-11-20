@@ -4,6 +4,8 @@ export {
 	formatAbsolute,
 	formatRelative,
 	formatTimestamp,
+	formatZoned,
+	utcOffsetLabel,
 	type TimestampInput,
 	type FormattedTimestamp,
 } from './timestamp.js';

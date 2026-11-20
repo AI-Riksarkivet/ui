@@ -1,6 +1,6 @@
 <script lang="ts" generics="TData">
 	import type { Snippet } from 'svelte';
-	import type { Table } from '@tanstack/table-core';
+	import type { Cell, Row, Table } from '@tanstack/table-core';
 	import { ChevronLeft, ChevronRight, TriangleAlert } from '@lucide/svelte';
 	import * as TablePrimitive from '../table/index.js';
 	import { Button } from '../button/index.js';
@@ -20,6 +20,7 @@
 		error = null,
 		emptyMessage = 'No results.',
 		onrowclick,
+		rowLabel,
 		footer,
 	}: {
 		table: Table<TData>;
@@ -28,7 +29,10 @@
 		/** A load failure to surface in-table (the row area shows it; header stays for context). */
 		error?: string | null;
 		emptyMessage?: string;
+		/** Opens a row: from its button (keyboard and assistive technology) and from a click anywhere on it. */
 		onrowclick?: (row: TData) => void;
+		/** The accessible name of a row's button; `Open <the value of its first column>` by default. */
+		rowLabel?: (row: TData) => string;
 		footer?: Snippet;
 	} = $props();
 
@@ -41,6 +45,30 @@
 	const totalRows = $derived(table.getCoreRowModel().rows.length);
 	// Shown once there is a second page (a page the server cuts counts its own pages) or the rows outgrow the smallest size.
 	const showPagination = $derived(pageCount > 1 || totalRows > (PAGE_SIZES[0] ?? 10));
+
+	/** What owns its own click inside a row: a click landing on one is that control's, never the row's. */
+	const ROW_CONTROLS = 'a, button, input, select, textarea, label, summary';
+
+	/** Whether a row's click landed on a control inside it. The control itself never stops the click: a
+	 *  client-side router reads a link's click where it bubbles to, and a stopped one is left to the
+	 *  browser, which loads the page whole. */
+	function landedOnAControl(e: MouseEvent): boolean {
+		const row = e.currentTarget;
+		const control = e.target instanceof Element ? e.target.closest(ROW_CONTROLS) : null;
+		return control !== null && row instanceof Element && control !== row && row.contains(control);
+	}
+
+	/** The cell a row's button goes in: the first one that is not the selection column's checkbox. */
+	function primaryCell(row: Row<TData>): Cell<TData, unknown> | undefined {
+		return row.getVisibleCells().find((cell) => cell.column.id !== 'select');
+	}
+
+	function labelOf(row: Row<TData>): string {
+		if (rowLabel) return rowLabel(row.original);
+		const value = primaryCell(row)?.getValue();
+		const text = value === null || value === undefined ? '' : String(value).trim();
+		return text ? `Open ${text}` : `Open row ${row.index + 1}`;
+	}
 </script>
 
 <!-- The table CARD owns containment: `min-w-0` + `max-w-full` so a wide table can never push the
@@ -99,18 +127,30 @@
 				{#each table.getRowModel().rows as row (row.id)}
 					<TablePrimitive.Row
 						data-state={row.getIsSelected() ? 'selected' : undefined}
-						class={cn(onrowclick && 'cursor-pointer')}
-						onclick={onrowclick ? () => onrowclick(row.original) : undefined}
-						onkeydown={onrowclick
-							? (e: KeyboardEvent) => {
-									if (e.key === 'Enter') onrowclick(row.original);
+						class={cn(
+							onrowclick &&
+								'cursor-pointer has-[[data-slot=data-table-row-action]:focus-visible]:outline-ring has-[[data-slot=data-table-row-action]:focus-visible]:outline-2 has-[[data-slot=data-table-row-action]:focus-visible]:-outline-offset-2',
+						)}
+						onclick={onrowclick
+							? (e: MouseEvent) => {
+									if (!landedOnAControl(e)) onrowclick(row.original);
 								}
 							: undefined}
-						role={onrowclick ? 'button' : undefined}
-						tabindex={onrowclick ? 0 : undefined}
 					>
+						{@const action = onrowclick ? primaryCell(row)?.id : undefined}
 						{#each row.getVisibleCells() as cell (cell.id)}
 							<TablePrimitive.Cell class={cn('px-3 py-2', cell.column.columnDef.meta?.cellClass)}>
+								{#if onrowclick && cell.id === action}
+									<!-- The row's own control: what a keyboard and a screen reader open the row with, beside
+									     the cell's content rather than around it, so it never nests a control the cell holds.
+									     Hidden from sight; its focus is drawn around the whole row. -->
+									<button
+										type="button"
+										data-slot="data-table-row-action"
+										class="sr-only"
+										onclick={() => onrowclick(row.original)}>{labelOf(row)}</button
+									>
+								{/if}
 								<FlexRender content={cell.column.columnDef.cell} context={cell.getContext()} />
 							</TablePrimitive.Cell>
 						{/each}

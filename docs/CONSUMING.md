@@ -56,7 +56,8 @@ The app's main stylesheet:
 ```
 
 `styles.css` brings the fonts (IBM Plex Sans and Mono, weight 400, self-hosted), `tw-animate-css`, the themes and the
-tokens, and an `@source` that points Tailwind at the package's own sources. Tailwind 4 skips `node_modules` when it
+tokens, and an `@source` that points Tailwind at the package's own sources, its stories and tests left out (their
+classes lay out a demo and would only add rules to the app's stylesheet). Tailwind 4 skips `node_modules` when it
 looks for classes, and an `@source` path is read relative to the stylesheet that declares it, so this one works
 wherever the package is installed: the app writes no `@source` for the package. Were an app to import only
 `@riksarkivet/ui/styles/tokens.css`, it would need the line itself, relative to its stylesheet, for example

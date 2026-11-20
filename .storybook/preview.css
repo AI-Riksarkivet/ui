@@ -2,3 +2,8 @@
    docs/CONSUMING.md tells an app to import it. */
 @import 'tailwindcss';
 @import '../src/lib/styles/index.css';
+
+/* The package's entry leaves the stories out of its scan, so a consumer never ships their classes; the stories are
+   scanned here, for Storybook alone. */
+@source '../src/**/*.stories.svelte';
+@source '../src/**/*.stories.ts';

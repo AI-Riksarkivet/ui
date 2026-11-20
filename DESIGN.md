@@ -217,7 +217,24 @@ whatever colour the person chose.
   (`focus-visible:ring-2 ring-offset-1`), or the destructive colour on a destructive control. Never remove an outline
   without putting the ring in its place.
 - **Keyboard**: everything a pointer can do, a keyboard can. Menus, selects, tabs, dialogs, sheets and tooltips get
-  their keys from Bits UI. A clickable table row is focusable and opens on Enter.
+  their keys from Bits UI.
+- **A table row that opens stays a table row.** It never takes a role of its own (a `button` role would make its
+  cells, and any link or field in them, one flat name, and take the row out of the table). It opens from a real
+  button in its first cell, visually hidden and named `Open <the first column's value>` (`rowLabel` names it
+  otherwise); when that button has the keyboard, a 2px `--ring` outline is drawn inside the whole row. A pointer click
+  anywhere on the row opens it too, as a convenience.
+- **A row's activation never fires from an inner control.** A click on a link, a button, a field or a label inside a
+  clickable row is that control's alone, and the control never stops its own click to get there (a client-side router
+  reads a link's click where it bubbles to).
+- **The sidebar at phone width** is a sheet with a title row on screen and its own close button, so it closes without
+  the scrim or a key. It opens with focus on its first row (the close button is one Shift+Tab back, and stays first in
+  the reading order, as on screen) and gives focus back to its trigger when it closes. Its rows carry no tooltip there
+  (it would never show, and its Escape handler would take the key the sheet closes on), and its title, description and
+  close label are the app's (`mobileTitle`, `mobileDescription`, `mobileCloseLabel` on `Sidebar.Root`). It folds at
+  `SHELL_COLLAPSE_BREAKPOINT` (1024px), which `IsMobile` asks about by default, so an app's top bar folds with it.
+- **A select says what it holds**: its trigger is named by its label and the value it shows ("Sort by Created"), so
+  the name holds the visible text (WCAG 2.5.3), and a disabled option carries `aria-disabled="true"` (Bits UI marks it
+  only with `data-disabled`).
 - **Hold to confirm** (`HoldToConfirm`) fires a destructive action only after a press held for its duration (pointer,
   Space or Enter) **or two presses**, the first of which arms it for a few seconds: the second path is what a screen
   reader in browse mode, voice control or a switch can send. Its accessible name says both ("Clear — hold, or press

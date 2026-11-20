@@ -12,10 +12,10 @@ import { MediaQuery } from 'svelte/reactivity';
  */
 export const SHELL_COLLAPSE_BREAKPOINT = 1024;
 
-const DEFAULT_MOBILE_BREAKPOINT = 768;
-
+/** Whether the viewport is below `breakpoint`; by default the width the sidebar folds at, so a caller that asks with
+ *  no argument folds with it. */
 export class IsMobile extends MediaQuery {
-	constructor(breakpoint: number = DEFAULT_MOBILE_BREAKPOINT) {
+	constructor(breakpoint: number = SHELL_COLLAPSE_BREAKPOINT) {
 		super(`max-width: ${breakpoint - 1}px`);
 	}
 }

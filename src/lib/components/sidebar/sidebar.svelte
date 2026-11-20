@@ -1,5 +1,7 @@
 <script lang="ts">
+	import XIcon from '@lucide/svelte/icons/x';
 	import * as Sheet from '../sheet/index.js';
+	import { Button } from '../button/index.js';
 	import { cn, type WithElementRef } from '../../utils/index.js';
 	import type { HTMLAttributes } from 'svelte/elements';
 	import { SIDEBAR_WIDTH_MOBILE } from './constants.js';
@@ -10,6 +12,9 @@
 		side = 'left',
 		variant = 'sidebar',
 		collapsible = 'offcanvas',
+		mobileTitle = 'Navigation',
+		mobileDescription = 'The pages you can go to.',
+		mobileCloseLabel = 'Close',
 		class: className,
 		children,
 		...restProps
@@ -17,9 +22,30 @@
 		side?: 'left' | 'right';
 		variant?: 'sidebar' | 'floating' | 'inset';
 		collapsible?: 'offcanvas' | 'icon' | 'none';
+		/** The title of the sheet the sidebar becomes at phone width: shown in its header, and its name. */
+		mobileTitle?: string;
+		/** What the sheet holds, read by assistive technology only. */
+		mobileDescription?: string;
+		/** The accessible name of the sheet's close button. */
+		mobileCloseLabel?: string;
 	} = $props();
 
 	const sidebar = useSidebar();
+
+	/** What can take focus, in the sheet's body. */
+	const FOCUSABLE =
+		'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+	let body = $state<HTMLElement | null>(null);
+
+	/** A navigation sheet opens on its first row, not on the close button its title row holds first: the title row
+	 *  stays first in the reading order, as it is on screen, and Shift+Tab from the first row reaches the button. */
+	function focusFirstRow(e: Event): void {
+		const first = body?.querySelector<HTMLElement>(FOCUSABLE);
+		if (!first) return;
+		e.preventDefault();
+		first.focus();
+	}
 </script>
 
 {#if collapsible === 'none'}
@@ -40,18 +66,29 @@
 			data-sidebar="sidebar"
 			data-slot="sidebar"
 			data-mobile="true"
-			class={cn(
-				'bg-sidebar text-sidebar-foreground w-(--sidebar-width) p-0 [&>button]:hidden',
-				className,
-			)}
+			class={cn('bg-sidebar text-sidebar-foreground w-(--sidebar-width) gap-0 p-0', className)}
 			--sidebar-width={SIDEBAR_WIDTH_MOBILE}
+			showCloseButton={false}
+			onOpenAutoFocus={focusFirstRow}
 			{side}
 		>
-			<Sheet.Header class="sr-only">
-				<Sheet.Title>Sidebar</Sheet.Title>
-				<Sheet.Description>Displays the mobile sidebar.</Sheet.Description>
+			<!-- The title row, shown on screen, holds the sheet's own close button, so closing it needs
+			     neither the scrim nor a key. -->
+			<Sheet.Header
+				class="h-12 shrink-0 flex-row items-center justify-between gap-2 py-0 ps-4 pe-2"
+			>
+				<Sheet.Title class="truncate text-sm">{mobileTitle}</Sheet.Title>
+				<Sheet.Description class="sr-only">{mobileDescription}</Sheet.Description>
+				<Sheet.Close>
+					{#snippet child({ props })}
+						<Button variant="ghost" size="icon-sm" {...props}>
+							<XIcon />
+							<span class="sr-only">{mobileCloseLabel}</span>
+						</Button>
+					{/snippet}
+				</Sheet.Close>
 			</Sheet.Header>
-			<div class="flex h-full w-full flex-col">
+			<div bind:this={body} class="flex min-h-0 w-full flex-1 flex-col">
 				{@render children?.()}
 			</div>
 		</Sheet.Content>

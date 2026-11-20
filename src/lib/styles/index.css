@@ -6,8 +6,16 @@
    It brings the fonts (self-hosted IBM Plex, the one weight, 400), the enter/exit animation utilities the overlay
    components use (tw-animate-css), the themes' seeds and the tokens, and a scan of this package's own sources so the
    classes its components use are generated: Tailwind 4 skips `node_modules`, and an `@source` path is read relative to
-   the stylesheet that declares it, so this one works wherever the package is installed. */
+   the stylesheet that declares it, so this one works wherever the package is installed.
+
+   The scan leaves out the stories and any test beside a source: their classes lay out a demo, never a component, and
+   would otherwise land in every consumer's stylesheet. This repository's Storybook scans its stories itself
+   (`.storybook/preview.css`). */
 @import 'tw-animate-css';
 @import './tokens.css';
 
 @source '../../';
+@source not '../../**/*.stories.svelte';
+@source not '../../**/*.stories.ts';
+@source not '../../**/*.test.ts';
+@source not '../../**/*.spec.ts';

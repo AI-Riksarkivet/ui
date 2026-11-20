@@ -84,6 +84,26 @@ export function formatAbsolute(value: TimestampInput): string {
 	);
 }
 
+/** The zone a local stamp is read in, as an offset from UTC: `UTC`, `UTC+01:00`, `UTC-05:30`.
+ *  `minutesEast` is the offset east of Greenwich, the negation of `Date#getTimezoneOffset()`. An
+ *  offset rather than a zone name: the browser's short names differ between engines and locales
+ *  (`CET`, `GMT+1`), and an offset reads the same everywhere. */
+export function utcOffsetLabel(minutesEast: number): string {
+	if (minutesEast === 0) return 'UTC';
+	const sign = minutesEast > 0 ? '+' : '-';
+	const abs = Math.abs(minutesEast);
+	return `UTC${sign}${pad(Math.floor(abs / 60))}:${pad(abs % 60)}`;
+}
+
+/** `YYYY-MM-DD HH:mm:ss UTC+01:00`: the local date and time with the zone it is read in, for a list of
+ *  moments where every row must say one instant one way and a reader in another zone must still know
+ *  which clock it is. `—` when there is nothing to format. */
+export function formatZoned(value: TimestampInput): string {
+	const date = toDate(value);
+	if (!date) return UNKNOWN;
+	return `${formatAbsolute(date)} ${utcOffsetLabel(-date.getTimezoneOffset())}`;
+}
+
 const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
 const DAY = 24 * HOUR;

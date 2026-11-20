@@ -7,6 +7,7 @@ no registry release.
 
 - [`DESIGN.md`](DESIGN.md): the look and its rules. Read it before changing a token or a component.
 - [`docs/CONSUMING.md`](docs/CONSUMING.md): how an app depends on it, imports it and upgrades it.
+- [`docs/ADOPTING-FROM-RASK-UI.md`](docs/ADOPTING-FROM-RASK-UI.md): switching an app that carries rask's older copy.
 - [`THIRD_PARTY.md`](THIRD_PARTY.md): code from elsewhere and its licences.
 - [`PROVENANCE.md`](PROVENANCE.md): where the first version came from.
 

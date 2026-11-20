@@ -1,5 +1,7 @@
-import { describe, expect, it } from 'vitest';
-import type { Component } from 'svelte';
+// @vitest-environment happy-dom
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { flushSync, mount, unmount, type Component } from 'svelte';
+import DataTableHost from './fixtures/data-table-host.svelte';
 import { mergeObjects } from '../src/lib/components/data-table/create-svelte-table.svelte';
 import {
 	RenderComponentConfig,
@@ -91,5 +93,71 @@ describe('selectionColumn', () => {
 		expect(props.checked).toBe(false);
 		props.onCheckedChange(true);
 		expect(toggled).toBe(true);
+	});
+});
+
+describe('DataTable row activation', () => {
+	const rows = [
+		{ id: 'a', name: 'Alpha' },
+		{ id: 'b', name: 'Beta' },
+	];
+	let host: ReturnType<typeof mount> | null = null;
+	afterEach(() => {
+		if (host) unmount(host);
+		host = null;
+		document.body.innerHTML = '';
+	});
+
+	function render(props: { rowLabel?: (row: { id: string; name: string }) => string } = {}) {
+		const onrowclick = vi.fn();
+		host = mount(DataTableHost, { target: document.body, props: { rows, onrowclick, ...props } });
+		flushSync();
+		const row = document.querySelectorAll<HTMLTableRowElement>('tbody [data-slot="table-row"]')[0]!;
+		const control = (name: string) =>
+			[...row.querySelectorAll<HTMLElement>('a, button, input')].find(
+				(el) => (el.textContent?.trim() || el.getAttribute('aria-label')) === name,
+			)!;
+		return { onrowclick, row, control };
+	}
+
+	it('keeps the row a table row, and opens it from a real button in its first cell', () => {
+		const { onrowclick, row } = render();
+		// No role override: the row and its cells stay the table's, so a reader can move through them.
+		expect(row.tagName).toBe('TR');
+		expect(row.hasAttribute('role')).toBe(false);
+		expect(row.hasAttribute('tabindex')).toBe(false);
+		expect(row.closest('table')?.hasAttribute('role')).toBe(false);
+		expect([...row.children].every((cell) => cell.tagName === 'TD')).toBe(true);
+
+		const open = row.querySelector<HTMLButtonElement>('[data-slot="data-table-row-action"]');
+		expect(open?.tagName).toBe('BUTTON');
+		expect(open?.type).toBe('button');
+		expect(row.cells[0]?.contains(open)).toBe(true);
+		expect(open?.textContent?.trim()).toBe('Open Alpha');
+		open!.click();
+		expect(onrowclick).toHaveBeenCalledExactlyOnceWith(rows[0]);
+	});
+
+	it("names the row's button as the app says", () => {
+		const { row } = render({ rowLabel: (r) => `Show the details of ${r.name}` });
+		expect(row.querySelector('[data-slot="data-table-row-action"]')?.textContent?.trim()).toBe(
+			'Show the details of Alpha',
+		);
+	});
+
+	it('activates the row on a click that lands on the row itself', () => {
+		const { onrowclick, row } = render();
+		row.cells[0]!.click();
+		expect(onrowclick).toHaveBeenCalledExactlyOnceWith(rows[0]);
+		row.click();
+		expect(onrowclick).toHaveBeenCalledTimes(2);
+	});
+
+	it('never activates the row from a click on a control inside it', () => {
+		const { onrowclick, control } = render();
+		control('Edit Alpha').click();
+		control('Note for Alpha').click();
+		control('Go to Alpha').click();
+		expect(onrowclick).not.toHaveBeenCalled();
 	});
 });

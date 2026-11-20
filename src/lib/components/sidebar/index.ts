@@ -1,4 +1,7 @@
 import { useSidebar } from './context.svelte.js';
+// The width the sidebar folds into a sheet at, and the query it reads, for an app's top bar to fold its links at
+// the same width: a bar laid out in a row beside a sidebar that has already gone off-canvas overlaps itself.
+export { IsMobile, SHELL_COLLAPSE_BREAKPOINT } from '../../hooks/is-mobile.svelte.js';
 import Content from './sidebar-content.svelte';
 import Footer from './sidebar-footer.svelte';
 import GroupAction from './sidebar-group-action.svelte';

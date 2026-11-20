@@ -9,4 +9,9 @@
 	}: WithoutChildrenOrChild<BitsAvatar.ImageProps> = $props();
 </script>
 
-<BitsAvatar.Image bind:ref class={cn('aspect-square size-full', className)} {...rest} />
+<BitsAvatar.Image
+	bind:ref
+	data-slot="avatar-image"
+	class={cn('aspect-square size-full', className)}
+	{...rest}
+/>

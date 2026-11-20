@@ -74,6 +74,22 @@
 	});
 
 	const empty = createSvelteTable<Item>({ data: [], columns, getCoreRowModel: getCoreRowModel() });
+
+	// A row that opens, holding controls of its own: a click or a key on a control is the control's,
+	// and only a click on the row, or Enter or Space with the row focused, opens it.
+	let opened = $state('nothing yet');
+	const openable = createSvelteTable<Item>({
+		data: DATA.slice(0, 4),
+		columns: [
+			{ accessorKey: 'name', header: 'Name' },
+			{
+				id: 'controls',
+				header: 'Controls',
+				cell: ({ row }) => renderSnippet(controls, row.original),
+			},
+		],
+		getCoreRowModel: getCoreRowModel(),
+	});
 </script>
 
 {#snippet actions(item: Item)}
@@ -82,6 +98,24 @@
 		<DropdownMenu.Item>Copy the id</DropdownMenu.Item>
 	</DataTableRowActions>
 {/snippet}
+
+{#snippet controls(item: Item)}
+	<div class="flex items-center gap-3">
+		<a class="text-primary underline-offset-4 hover:underline" href={`#${item.id}`}>Link</a>
+		<button
+			type="button"
+			class="text-primary underline-offset-4 hover:underline"
+			onclick={() => (opened = `the button of ${item.name}`)}>Button</button
+		>
+	</div>
+{/snippet}
+
+<Story name="Rows that open, with controls inside">
+	<div class="flex w-[40rem] flex-col gap-3">
+		<DataTable table={openable} onrowclick={(item) => (opened = `the row ${item.name}`)} />
+		<p class="text-muted-foreground text-sm" aria-live="polite">Opened: {opened}</p>
+	</div>
+</Story>
 
 <Story name="Sort, filter, select, page">
 	<div class="flex w-[40rem] flex-col gap-3">

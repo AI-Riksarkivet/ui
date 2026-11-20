@@ -13,6 +13,21 @@ its story and tests, `THIRD_PARTY.md`, and the Storybook setup.
 
 From rask's copy: `copy-button` and its story.
 
+## Ported from rask's copy before its console adopts the package
+
+Taken from rask's `frontend/packages/ui` at `06442330a`, each rewritten in this package's look and with a test of its
+own (`docs/ADOPTING-FROM-RASK-UI.md` has the full comparison):
+
+- `formatZoned` and `utcOffsetLabel` in `@riksarkivet/ui/utils`.
+- The data table's rule that a click on a control inside a row is the control's. rask's row was `role="button"` with
+  `tabindex="0"`; here the row keeps its table semantics and opens from a real button in its first cell instead.
+- The sidebar's phone-width sheet: a title row on screen with its own close button, focus on the first row when it
+  opens, no tooltip on its rows, and its strings as props (`mobileTitle`, `mobileDescription`, `mobileCloseLabel`)
+  where rask's copy wrote its own.
+- `aria-disabled` on a select's disabled option. The trigger's name holding its value is this package's own fix; neither
+  copy had it.
+- The avatar fallback's `data-slot` (and the root's and the image's, which neither copy had).
+
 ## Changed on the way
 
 - The package is `@riksarkivet/ui`, at the repository root.
